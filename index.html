@@ -4,58 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo da Memória Super Kids</title>
-    <script src="https://unpkg.com"></script>
     <style>
         @import url('https://googleapis.com');
-        body { font-family: 'Quicksand', sans-serif; }
-        .titulo { font-family: 'Fredoka', sans-serif; }
+        body { font-family: 'Quicksand', sans-serif; background: linear-gradient(to bottom, #dbeafe, #f3e8ff); min-height: 100vh; margin: 0; padding: 16px; display: flex; flex-direction: column; align-items: center; user-select: none; }
+        .titulo { font-family: 'Fredoka', sans-serif; font-size: 32px; font-weight: 900; color: #9333ea; margin-bottom: 24px; text-align: center; }
+        .container { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 100%; max-w: 400px; border: 4px solid #d8b4fe; box-sizing: border-box; }
+        .input-text { flex: 1; padding: 8px 16px; border: 2px solid #d1d5db; border-radius: 12px; font-size: 16px; outline: none; }
+        .input-text:focus { border-color: #a855f7; }
+        .btn-purple { background: #a855f7; color: white; font-weight: bold; padding: 8px 16px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; }
+        .btn-green { background: #22c55e; color: white; font-size: 20px; font-weight: 900; padding: 16px; border: none; border-radius: 16px; width: 100%; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-transform: uppercase; margin-top: 16px; }
+        .btn-green:hover { background: #16a34a; }
+        .jogador-item { background: #f3e8ff; color: #7e22ce; font-weight: bold; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; list-style: none; display: flex; justify-content: space-between; }
+        .painel-turno { background: white; padding: 16px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; max-width: 400px; margin-bottom: 16px; display: flex; justify-content: space-between; border: 2px solid #93c5fd; box-sizing: border-box; }
+        .banner-msg { background: #facc15; color: #713f12; font-weight: 800; font-size: 18px; padding: 8px 24px; border-radius: 9999px; margin-bottom: 24px; text-align: center; width: 100%; max-width: 400px; box-sizing: border-box; }
+        .grid-tabuleiro { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 400px; aspect-ratio: 1/1; margin-bottom: 24px; }
+        .carta { aspect-ratio: 1/1; font-size: 32px; border-radius: 16px; font-weight: bold; border: 4px solid white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .carta-virada { background: white; border-color: #60a5fa; color: black; }
+        .carta-escondida { background: linear-gradient(to top right, #a855f7, #4f46e5); color: white; }
+        .carta-par { background: transparent; border-color: transparent; opacity: 0; pointer-events: none; }
+        .hidden { display: none !important; }
+        .placar-box { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; }
+        .placar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .placar-item { padding: 8px; border-radius: 8px; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; }
+        .subtitulo { font-size: 18px; font-weight: bold; color: #374151; margin-top: 16px; margin-bottom: 8px; }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-b from-blue-100 to-purple-100 p-4 flex flex-col items-center select-none">
-    <h1 class="titulo text-3xl md:text-4xl font-black text-purple-600 mb-6 text-center drop-shadow-sm mt-4">🧠 Jogo da Memória Super Kids</h1>
+<body>
+    <div class="titulo">🧠 Jogo da Memória Super Kids</div>
     <!-- TELA INICIAL -->
-    <div id="tela-inicial" class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md border-4 border-purple-300">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">1. Quem vai jogar?</h2>
-        <div class="flex gap-2 mb-4">
-            <input type="text" id="input-nome" placeholder="Nome do jogador" class="flex-1 px-4 py-2 border-2 rounded-xl text-black border-gray-300 focus:outline-none focus:border-purple-500">
-            <button onclick="adicionarJogador()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold px-4 py-2 rounded-xl transition-all">Adicionar</button>
+    <div id="tela-inicial" class="container">
+        <div class="subtitulo" style="margin-top:0;">1. Quem vai jogar?</div>
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <input type="text" id="input-nome" placeholder="Nome do jogador" class="input-text">
+            <button onclick="adicionarJogador()" class="btn-purple">Adicionar</button>
         </div>
-        <div class="mb-6">
-            <p class="text-sm font-semibold text-gray-500 mb-2">Jogadores na fila:</p>
-            <ul id="lista-jogadores" class="space-y-1"></ul>
-            <p id="lista-vazia" class="text-gray-400 italic text-sm">Nenhum jogador adicionado ainda...</p>
+        <div>
+            <p style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px;">Jogadores na fila:</p>
+            <ul id="lista-jogadores" style="padding:0; margin:0;"></ul>
+            <p id="lista-vazia" style="color: #9ca3af; font-style: italic; font-size: 14px; margin:0;">Nenhum jogador adicionado ainda...</p>
         </div>
-        <h2 class="text-xl font-bold text-gray-700 mb-2">2. Tempo de Espiar (segundos)</h2>
-        <input type="number" id="tempo-espiar" min="3" max="30" value="10" class="w-full text-black px-4 py-2 border-2 border-gray-300 rounded-xl mb-6 focus:outline-none focus:border-purple-500">
-        <button onclick="iniciarJogo()" class="w-full bg-green-500 hover:bg-green-600 text-white text-xl font-black py-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider">🚀 Iniciar Jogo!</button>
+        <div class="subtitulo">2. Tempo de Espiar (segundos)</div>
+        <input type="number" id="tempo-espiar" min="3" max="30" value="10" class="input-text" style="width: 100%; box-sizing: border-box;">
+        <button onclick="iniciarJogo()" class="btn-green">🚀 Iniciar Jogo!</button>
     </div>
 
     <!-- TELA DO JOGO EM ANDAMENTO -->
-    <div id="tela-jogo" class="w-full max-w-md hidden">
-        <div class="bg-white p-4 rounded-2xl shadow-md w-full mb-4 flex justify-between items-center border-2 border-blue-300">
+    <div id="tela-jogo" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <div class="painel-turno">
             <div>
-                <p class="text-xs font-bold text-gray-400 uppercase">Jogador Atual</p>
-                <p id="jogador-atual" class="text-2xl font-black text-blue-600">-</p>
+                <p style="margin:0; font-size: 12px; font-weight: bold; color: #9ca3af; text-transform: uppercase;">Jogador Atual</p>
+                <p id="jogador-atual" style="margin:0; font-size: 24px; font-weight: 900; color: #2563eb;">-</p>
             </div>
-            <div class="text-right">
-                <p class="text-xs font-bold text-gray-400 uppercase">Próximo</p>
-                <p id="proximo-jogador" class="text-sm font-bold text-gray-600">-</p>
+            <div style="text-align: right;">
+                <p style="margin:0; font-size: 12px; font-weight: bold; color: #9ca3af; text-transform: uppercase;">Próximo</p>
+                <p id="proximo-jogador" style="margin:0; font-size: 14px; font-weight: bold; color: #4b5563;">-</p>
             </div>
         </div>
-        <div id="banner-mensagem" class="bg-yellow-400 text-yellow-900 font-extrabold text-lg px-6 py-2 rounded-full mb-6 shadow-sm text-center w-full">Memorize as cartas!</div>
-        <div id="tabuleiro" class="grid grid-cols-4 gap-3 w-full aspect-square mb-6"></div>
-        <div class="w-full bg-white p-4 rounded-xl shadow">
-            <p class="font-bold text-gray-700 mb-2 border-b pb-1 text-sm">Placar da Rodada:</p>
-            <div id="placar" class="grid grid-cols-2 gap-2"></div>
+        <div id="banner-mensagem" class="banner-msg">Memorize as cartas!</div>
+        <div id="tabuleiro" class="grid-tabuleiro"></div>
+        <div class="placar-box">
+            <p style="font-weight: bold; color: #374151; margin: 0 0 8px 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; font-size: 14px;">Placar da Rodada:</p>
+            <div id="placar" class="placar-grid"></div>
         </div>
     </div>
 
     <!-- TELA DE FIM DE JOGO -->
-    <div id="tela-vencedor" class="mt-4 bg-yellow-100 border-4 border-yellow-400 p-6 rounded-2xl shadow-xl max-w-md text-center hidden">
-        <p class="text-5xl mb-2">👑</p>
-        <h2 class="text-2xl font-black text-yellow-700 mb-2">Temos um Campeão!</h2>
-        <p id="texto-vencedor" class="text-xl text-gray-700 font-bold mb-4"></p>
-        <button onclick="reiniciarTudo()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-black px-6 py-3 rounded-xl shadow transition-all uppercase">Jogar Novamente 🔄</button>
+    <div id="tela-vencedor" class="container hidden" style="text-align: center; background: #fef9c3; border-color: #facc15;">
+        <p style="font-size: 48px; margin: 0 0 8px 0;">👑</p>
+        <h2 style="font-size: 24px; font-weight: 900; color: #a16207; margin: 0 0 8px 0;">Temos um Campeão!</h2>
+        <p id="texto-vencedor" style="font-size: 18px; color: #374151; font-weight: bold; margin-bottom: 16px;"></p>
+        <button onclick="reiniciarTudo()" class="btn-green" style="background:#eab308; margin:0;">Jogar Novamente 🔄</button>
     </div>
     <script>
         const IMAGENS = ['⚽', '🚗', '🐱', '🪆', '🛋️', '🚀', '🎨', '🍕'];
@@ -70,7 +88,7 @@
             const input = document.getElementById('input-nome');
             const nome = input.value.trim();
             if(!nome) return;
-            jogadores.push({ nome, pontos: 0 });
+            jogadores.push({ nome: nome, pontos: 0 });
             input.value = '';
             atualizarListaEspera();
         }
@@ -81,7 +99,7 @@
             lista.innerHTML = '';
             if(jogadores.length > 0) vazia.classList.add('hidden');
             jogadores.forEach((j, i) => {
-                lista.innerHTML += `<li class="bg-purple-50 text-purple-700 font-bold px-3 py-1.5 rounded-lg text-sm flex justify-between"><span>${i+1}. ${j.nome}</span></li>`;
+                lista.innerHTML += '<li class="jogador-item"><span>' + (i+1) + '. ' + j.nome + '</span></li>';
             });
         }
 
@@ -92,14 +110,14 @@
             document.getElementById('tela-jogo').classList.remove('hidden');
             indexAtual = 0;
             jogadores.forEach(j => j.pontos = 0);
-            let duplicadas = [...IMAGENS, ...IMAGENS];
-            cartas = duplicadas.map((img, idx) => ({ id: idx, img, par: false, aberta: false })).sort(() => Math.random() - 0.5);
+            let duplicadas = [].concat(IMAGENS, IMAGENS);
+            cartas = duplicadas.map((img, idx) => ({ id: idx, img: img, par: false, aberta: false })).sort(() => Math.random() - 0.5);
             montarTabuleiro(true);
             atualizarPlacar();
             let tempo = parseInt(document.getElementById('tempo-espiar').value) || 10;
             const banner = document.getElementById('banner-mensagem');
             bloqueado = true;
-            banner.innerHTML = `⏱️ Guarde na memória! Sumindo em: ${tempo}s`;
+            banner.innerHTML = '⏱️ Guarde na memória! Sumindo em: ' + tempo + 's';
             clearInterval(tempoTimer);
             tempoTimer = setInterval(() => {
                 tempo--;
@@ -107,9 +125,9 @@
                     clearInterval(tempoTimer);
                     bloqueado = false;
                     montarTabuleiro(false);
-                    banner.innerHTML = `Vez de: ${jogadores[indexAtual].nome}`;
+                    banner.innerHTML = 'Vez de: ' + jogadores[indexAtual].nome;
                 } else {
-                    banner.innerHTML = `⏱️ Guarde na memória! Sumindo em: ${tempo}s`;
+                    banner.innerHTML = '⏱️ Guarde na memória! Sumindo em: ' + tempo + 's';
                 }
             }, 1000);
         }
@@ -118,19 +136,23 @@
             const tab = document.getElementById('tabuleiro');
             tab.innerHTML = '';
             cartas.forEach(c => {
-                let conteudo = revelado || c.par || c.aberta ? c.img : '❓';
-                let classes = c.par ? 'bg-transparent border-transparent opacity-0 pointer-events-none' : (revelado || c.aberta ? 'bg-white border-blue-400 text-black' : 'bg-gradient-to-tr from-purple-500 to-indigo-600 border-white text-white');
-                tab.innerHTML += `<button onclick="clicarCarta(${c.id})" class="aspect-square text-4xl rounded-2xl shadow-md font-bold border-4 transition-all ${classes}">${conteudo}</button>`;
+                let conteudo = (revelado || c.par || c.aberta) ? c.img : '❓';
+                let classeEstilo = 'carta ';
+                if (c.par) classeEstilo += 'carta-par';
+                else if (revelado || c.aberta) classeEstilo += 'carta-virada';
+                else classeEstilo += 'carta-escondida';
+                tab.innerHTML += '<button onclick="clicarCarta(' + c.id + ')" class="' + classeEstilo + '">' + conteudo + '</button>';
             });
         }
+
         function atualizarPlacar() {
             document.getElementById('jogador-atual').innerText = jogadores[indexAtual].nome;
             document.getElementById('proximo-jogador').innerText = jogadores[(indexAtual + 1) % jogadores.length].nome;
             const placar = document.getElementById('placar');
             placar.innerHTML = '';
             jogadores.forEach((j, i) => {
-                let destaque = i === indexAtual ? 'bg-blue-100 text-blue-800 border border-blue-300' : 'bg-gray-100 text-gray-600';
-                placar.innerHTML += `<div class="p-2 rounded-lg text-xs font-bold flex justify-between ${destaque}"><span>${j.nome}</span><span>${j.pontos} pts</span></div>`;
+                let estiloDestaque = (i === indexAtual) ? 'background:#dbeafe; color:#1e40af; border:1px solid #bfdbfe;' : 'background:#f3f4f6; color:#4b5563;';
+                placar.innerHTML += '<div class="placar-item" style="' + estiloDestaque + '"><span>' + j.nome + '</span><span>' + j.pontos + ' pts</span></div>';
             });
         }
 
@@ -154,7 +176,7 @@
                         if(cartas.every(c => c.par)) {
                             finalizarJogo();
                         } else {
-                            banner.innerHTML = `✅ Muito bem, ${jogadores[indexAtual].nome}! Continue.`;
+                            banner.innerHTML = '✅ Muito bem, ' + jogadores[indexAtual].nome + '! Continue.';
                             montarTabuleiro(false);
                             atualizarPlacar();
                         }
@@ -166,7 +188,7 @@
                         viradas = [];
                         indexAtual = (indexAtual + 1) % jogadores.length;
                         bloqueado = false;
-                        banner.innerHTML = `❌ Errou! Vez de: ${jogadores[indexAtual].nome}`;
+                        banner.innerHTML = '❌ Errou! Vez de: ' + jogadores[indexAtual].nome;
                         montarTabuleiro(false);
                         atualizarPlacar();
                     }, 1500);
@@ -177,8 +199,8 @@
         function finalizarJogo() {
             document.getElementById('tela-jogo').classList.add('hidden');
             document.getElementById('tela-vencedor').classList.remove('hidden');
-            let ordenado = [...jogadores].sort((a,b) => b.pontos - a.pontos);
-            document.getElementById('texto-vencedor').innerHTML = `<span class="text-purple-600">${ordenado[0].nome}</span> ganhou com <span class="text-green-600">${ordenado[0].pontos} pontos</span>!`;
+            let ordenado = [].concat(jogadores).sort((a,b) => b.pontos - a.pontos);
+            document.getElementById('texto-vencedor').innerHTML = '<span style="color:#9333ea;">' + ordenado[0].nome + '</span> ganhou com <span style="color:#16a34a;">' + ordenado[0].pontos + ' pontos</span>!';
         }
 
         function reiniciarTudo() {
@@ -190,3 +212,4 @@
     </script>
 </body>
 </html>
+
