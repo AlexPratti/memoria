@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo da Memória Super Kids</title>
-    <script src="https://tailwindcss.com"></script>
+    <script src="https://unpkg.com"></script>
     <style>
         @import url('https://googleapis.com');
         body { font-family: 'Quicksand', sans-serif; }
-        .titulo { font-family: 'Fredoka One', cursive; }
+        .titulo { font-family: 'Fredoka', sans-serif; }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-blue-100 to-purple-100 p-4 flex flex-col items-center select-none">
-
     <h1 class="titulo text-3xl md:text-4xl font-black text-purple-600 mb-6 text-center drop-shadow-sm mt-4">🧠 Jogo da Memória Super Kids</h1>
-
+    <!-- TELA INICIAL -->
     <div id="tela-inicial" class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md border-4 border-purple-300">
         <h2 class="text-xl font-bold text-gray-700 mb-4">1. Quem vai jogar?</h2>
         <div class="flex gap-2 mb-4">
@@ -30,6 +29,8 @@
         <input type="number" id="tempo-espiar" min="3" max="30" value="10" class="w-full text-black px-4 py-2 border-2 border-gray-300 rounded-xl mb-6 focus:outline-none focus:border-purple-500">
         <button onclick="iniciarJogo()" class="w-full bg-green-500 hover:bg-green-600 text-white text-xl font-black py-4 rounded-2xl shadow-lg transform hover:scale-105 transition-all uppercase tracking-wider">🚀 Iniciar Jogo!</button>
     </div>
+
+    <!-- TELA DO JOGO EM ANDAMENTO -->
     <div id="tela-jogo" class="w-full max-w-md hidden">
         <div class="bg-white p-4 rounded-2xl shadow-md w-full mb-4 flex justify-between items-center border-2 border-blue-300">
             <div>
@@ -49,6 +50,7 @@
         </div>
     </div>
 
+    <!-- TELA DE FIM DE JOGO -->
     <div id="tela-vencedor" class="mt-4 bg-yellow-100 border-4 border-yellow-400 p-6 rounded-2xl shadow-xl max-w-md text-center hidden">
         <p class="text-5xl mb-2">👑</p>
         <h2 class="text-2xl font-black text-yellow-700 mb-2">Temos um Campeão!</h2>
@@ -117,11 +119,10 @@
             tab.innerHTML = '';
             cartas.forEach(c => {
                 let conteudo = revelado || c.par || c.aberta ? c.img : '❓';
-                let classes = c.par ? 'bg-transparent border-transparent opacity-0 pointer-events-none' : (revelado || c.aberta ? 'bg-white border-blue-400' : 'bg-gradient-to-tr from-purple-500 to-indigo-600 border-white text-white');
+                let classes = c.par ? 'bg-transparent border-transparent opacity-0 pointer-events-none' : (revelado || c.aberta ? 'bg-white border-blue-400 text-black' : 'bg-gradient-to-tr from-purple-500 to-indigo-600 border-white text-white');
                 tab.innerHTML += `<button onclick="clicarCarta(${c.id})" class="aspect-square text-4xl rounded-2xl shadow-md font-bold border-4 transition-all ${classes}">${conteudo}</button>`;
             });
         }
-
         function atualizarPlacar() {
             document.getElementById('jogador-atual').innerText = jogadores[indexAtual].nome;
             document.getElementById('proximo-jogador').innerText = jogadores[(indexAtual + 1) % jogadores.length].nome;
@@ -189,4 +190,3 @@
     </script>
 </body>
 </html>
-
