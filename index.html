@@ -70,7 +70,6 @@
         
         <div id="banner-mensagem" class="banner-msg">Memorize as cartas!</div>
         
-        <!-- BOTÃO DE EMBARALHAR DURANTE A PARTIDA -->
         <button id="btn-embaralhar-meio" onclick="embaralharNoMeioDoJogo()" class="btn-orange" style="max-width:400px; margin-bottom:16px; margin-top:0;">🔀 Embaralhar Cartas Novamente</button>
         
         <div id="tabuleiro" class="grid-tabuleiro"></div>
@@ -80,7 +79,6 @@
             <div id="placar" class="placar-grid"></div>
         </div>
 
-        <!-- ADICIONAR JOGADOR DURANTE O JOGO -->
         <div class="placar-box" style="border: 2px dashed #c084fc;">
             <p style="font-weight: bold; color: #7e22ce; margin: 0 0 8px 0; font-size: 13px;">➕ Adicionar Jogador no meio da partida:</p>
             <div style="display: flex; gap: 8px;">
@@ -170,18 +168,16 @@
             document.getElementById('tela-vencedor').classList.add('hidden');
             document.getElementById('tela-jogo').classList.remove('hidden');
             indexAtual = 0;
-            
-            // Criar as cartas e disparar o tempo para espiar
+            jogadores.forEach(j => j.pontos = 0); // Garante pontos zerados no início
+            cartas = []; // Limpa o tabuleiro anterior
             gerarCartasEDecorar();
         }
 
         function gerarCartasEDecorar() {
             let duplicadas = [].concat(IMAGENS, IMAGENS);
-            // Pegar apenas as cartas que ainda NÃO foram feitas par, para manter o progresso se for re-embaralhado no meio do jogo
             if(cartas.length === 0 || cartas.every(c => c.par)) {
                 cartas = duplicadas.map((img, idx) => ({ id: idx, img: img, par: false, aberta: false })).sort(() => Math.random() - 0.5);
             } else {
-                // Re-embaralhar mantendo os pares que já sumiram
                 let cartasSalvas = cartas.map(c => ({ id: c.id, img: c.img, par: c.par, aberta: false }));
                 cartas = cartasSalvas.sort(() => Math.random() - 0.5);
             }
@@ -223,11 +219,11 @@
             tab.innerHTML = '';
             cartas.forEach(c => {
                 let conteudo = (revelado || c.par || c.aberta) ? c.img : '❓';
-                let classeEstilo = 'carta ';
-                if (c.par) classeEstilo += 'carta-par';
-                else if (revelado || c.aberta) classeEstilo += 'carta-virada';
-                else classeEstilo += 'carta-escondida';
-                tab.innerHTML += '<button onclick="clicarCarta(' + c.id + ')" class="' + classeEstilo + '">' + conteudo + '</button>';
+                let classes = 'carta ';
+                if (c.par) classes += 'carta-par';
+                else if (revelado || c.aberta) classes += 'carta-virada';
+                else classes += 'carta-escondida';
+                tab.innerHTML += '<button onclick="clicarCarta(' + c.id + ')" class="' + classes + '">' + conteudo + '</button>';
             });
         }
 
@@ -238,8 +234,8 @@
             const placar = document.getElementById('placar');
             placar.innerHTML = '';
             jogadores.forEach((j, i) => {
-                let estiloDestaque = (i === indexAtual) ? 'background:#dbeafe; color:#1e40af; border:1px solid #bfdbfe;' : 'background:#f3f4f6; color:#4b5563;';
-                placar.innerHTML += '<div class="placar-item" style="' + estiloDestaque + '"><span>' + j.nome + ' (' + j.pontos + ' pts)</span><button class="btn-del-single" style="padding:0px 4px;" onclick="deletarJogadorNoMeio(' + i + ')">❌</button></div>';
+                let destaque = (i === indexAtual) ? 'background:#dbeafe; color:#1e40af; border:1px solid #bfdbfe;' : 'background:#f3f4f6; color:#4b5563;';
+                placar.innerHTML += '<div class="placar-item" style="' + destaque + '"><span>' + j.nome + ' (' + j.pontos + ' pts)</span><button class="btn-del-single" style="padding:0px 4px;" onclick="deletarJogadorNoMeio(' + i + ')">❌</button></div>';
             });
         }
 
@@ -295,7 +291,7 @@
             document.getElementById('tela-vencedor').classList.add('hidden');
             document.getElementById('tela-jogo').classList.remove('hidden');
             indexAtual = 0;
-            jogadores.forEach(j => j.pontos = 0);
+            jogadores.forEach(j => j.pontos = 0); // AQUI: Zera os pontos de todos mantendo os nomes!
             cartas = [];
             gerarCartasEDecorar();
         }
@@ -306,6 +302,7 @@
             document.getElementById('tela-jogo').classList.add('hidden');
             document.getElementById('tela-inicial').classList.remove('hidden');
             cartas = [];
+            jogadores = [];
             atualizarListaEspera();
         }
     </script>
