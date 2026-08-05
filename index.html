@@ -14,7 +14,12 @@
         .btn-purple { background: #a855f7; color: white; font-weight: bold; padding: 8px 16px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; }
         .btn-green { background: #22c55e; color: white; font-size: 20px; font-weight: 900; padding: 16px; border: none; border-radius: 16px; width: 100%; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-transform: uppercase; margin-top: 16px; }
         .btn-green:hover { background: #16a34a; }
-        .jogador-item { background: #f3e8ff; color: #7e22ce; font-weight: bold; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; list-style: none; display: flex; justify-content: space-between; }
+        .btn-orange { background: #f97316; color: white; font-weight: bold; padding: 8px 12px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; text-transform: uppercase; margin-top: 8px; width: 100%; }
+        .btn-orange:hover { background: #ea580c; }
+        .btn-del-all { background: #ef4444; color: white; font-size: 12px; font-weight: bold; padding: 4px 8px; border: none; border-radius: 6px; cursor: pointer; margin-top: 8px; }
+        .btn-del-single { background: #f3f4f6; color: #ef4444; border: 1px solid #f3f4f6; font-size: 12px; cursor: pointer; border-radius: 4px; padding: 2px 6px; font-weight: bold; }
+        .btn-del-single:hover { background: #fee2e2; }
+        .jogador-item { background: #f3e8ff; color: #7e22ce; font-weight: bold; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; list-style: none; display: flex; justify-content: space-between; align-items: center; }
         .painel-turno { background: white; padding: 16px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); width: 100%; max-width: 400px; margin-bottom: 16px; display: flex; justify-content: space-between; border: 2px solid #93c5fd; box-sizing: border-box; }
         .banner-msg { background: #facc15; color: #713f12; font-weight: 800; font-size: 18px; padding: 8px 24px; border-radius: 9999px; margin-bottom: 24px; text-align: center; width: 100%; max-width: 400px; box-sizing: border-box; }
         .grid-tabuleiro { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 400px; aspect-ratio: 1/1; margin-bottom: 24px; }
@@ -23,31 +28,33 @@
         .carta-escondida { background: linear-gradient(to top right, #a855f7, #4f46e5); color: white; }
         .carta-par { background: transparent; border-color: transparent; opacity: 0; pointer-events: none; }
         .hidden { display: none !important; }
-        .placar-box { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; }
+        .placar-box { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; max-width: 400px; box-sizing: border-box; margin-bottom: 16px; }
         .placar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .placar-item { padding: 8px; border-radius: 8px; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; }
+        .placar-item { padding: 8px; border-radius: 8px; font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .subtitulo { font-size: 18px; font-weight: bold; color: #374151; margin-top: 16px; margin-bottom: 8px; }
     </style>
 </head>
 <body>
     <div class="titulo">🧠 Jogo da Memória Super Kids</div>
+
     <!-- TELA INICIAL -->
     <div id="tela-inicial" class="container">
         <div class="subtitulo" style="margin-top:0;">1. Quem vai jogar?</div>
-        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 4px;">
             <input type="text" id="input-nome" placeholder="Nome do jogador" class="input-text">
-            <button onclick="adicionarJogador()" class="btn-purple">Adicionar</button>
+            <button onclick="adicionarJogador('inicial')" class="btn-purple">Adicionar</button>
         </div>
-        <div>
-            <p style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 8px;">Jogadores na fila:</p>
-            <ul id="lista-jogadores" style="padding:0; margin:0;"></ul>
-            <p id="lista-vazia" style="color: #9ca3af; font-style: italic; font-size: 14px; margin:0;">Nenhum jogador adicionado ainda...</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="font-size: 14px; font-weight: 600; color: #6b7280; margin: 8px 0;">Jogadores na fila:</p>
+            <button id="btn-limpar-todos" onclick="deletarTodosJogadores()" class="btn-del-all hidden">Limpar Todos</button>
         </div>
+        <ul id="lista-jogadores" style="padding:0; margin:0;"></ul>
+        <p id="lista-vazia" style="color: #9ca3af; font-style: italic; font-size: 14px; margin:0;">Nenhum jogador adicionado ainda...</p>
+        
         <div class="subtitulo">2. Tempo de Espiar (segundos)</div>
         <input type="number" id="tempo-espiar" min="3" max="30" value="10" class="input-text" style="width: 100%; box-sizing: border-box;">
         <button onclick="iniciarJogo()" class="btn-green">🚀 Iniciar Jogo!</button>
     </div>
-
     <!-- TELA DO JOGO EM ANDAMENTO -->
     <div id="tela-jogo" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
         <div class="painel-turno">
@@ -60,11 +67,26 @@
                 <p id="proximo-jogador" style="margin:0; font-size: 14px; font-weight: bold; color: #4b5563;">-</p>
             </div>
         </div>
+        
         <div id="banner-mensagem" class="banner-msg">Memorize as cartas!</div>
+        
+        <!-- BOTÃO DE EMBARALHAR DURANTE A PARTIDA -->
+        <button id="btn-embaralhar-meio" onclick="embaralharNoMeioDoJogo()" class="btn-orange" style="max-width:400px; margin-bottom:16px; margin-top:0;">🔀 Embaralhar Cartas Novamente</button>
+        
         <div id="tabuleiro" class="grid-tabuleiro"></div>
+        
         <div class="placar-box">
             <p style="font-weight: bold; color: #374151; margin: 0 0 8px 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; font-size: 14px;">Placar da Rodada:</p>
             <div id="placar" class="placar-grid"></div>
+        </div>
+
+        <!-- ADICIONAR JOGADOR DURANTE O JOGO -->
+        <div class="placar-box" style="border: 2px dashed #c084fc;">
+            <p style="font-weight: bold; color: #7e22ce; margin: 0 0 8px 0; font-size: 13px;">➕ Adicionar Jogador no meio da partida:</p>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="input-nome-meio" placeholder="Nome do novo jogador" class="input-text" style="padding: 6px 12px; font-size: 14px;">
+                <button onclick="adicionarJogador('meio')" class="btn-purple" style="padding: 6px 12px; font-size: 14px;">Inserir</button>
+            </div>
         </div>
     </div>
 
@@ -73,7 +95,8 @@
         <p style="font-size: 48px; margin: 0 0 8px 0;">👑</p>
         <h2 style="font-size: 24px; font-weight: 900; color: #a16207; margin: 0 0 8px 0;">Temos um Campeão!</h2>
         <p id="texto-vencedor" style="font-size: 18px; color: #374151; font-weight: bold; margin-bottom: 16px;"></p>
-        <button onclick="reiniciarTudo()" class="btn-green" style="background:#eab308; margin:0;">Jogar Novamente 🔄</button>
+        <button onclick="jogarNovamenteMesmosJogadores()" class="btn-green" style="background:#22c55e; margin:0 0 8px 0;">Jogar Novamente 🔄</button>
+        <button onclick="reiniciarTudo()" class="btn-green" style="background:#a855f7; margin:0; font-size:16px; padding:10px;">Voltar ao Início (Mudar Fila)</button>
     </div>
     <script>
         const IMAGENS = ['⚽', '🚗', '🐱', '🪆', '🛋️', '🚀', '🎨', '🍕'];
@@ -84,22 +107,60 @@
         let bloqueado = false;
         let tempoTimer;
 
-        function adicionarJogador() {
-            const input = document.getElementById('input-nome');
+        function adicionarJogador(onde) {
+            const idInput = onde === 'inicial' ? 'input-nome' : 'input-nome-meio';
+            const input = document.getElementById(idInput);
             const nome = input.value.trim();
             if(!nome) return;
+
             jogadores.push({ nome: nome, pontos: 0 });
             input.value = '';
+
+            if(onde === 'inicial') {
+                atualizarListaEspera();
+            } else {
+                atualizarPlacar();
+            }
+        }
+
+        function deletarJogador(index) {
+            jogadores.splice(index, 1);
             atualizarListaEspera();
+        }
+
+        function deletarTodosJogadores() {
+            jogadores = [];
+            atualizarListaEspera();
+        }
+
+        function deletarJogadorNoMeio(index) {
+            if(jogadores.length <= 1) {
+                alert("Não é possível deletar todos os jogadores com a partida em andamento!");
+                return;
+            }
+            jogadores.splice(index, 1);
+            if (indexAtual >= jogadores.length) {
+                indexAtual = 0;
+            }
+            atualizarPlacar();
         }
 
         function atualizarListaEspera() {
             const lista = document.getElementById('lista-jogadores');
             const vazia = document.getElementById('lista-vazia');
+            const btnLimpar = document.getElementById('btn-limpar-todos');
             lista.innerHTML = '';
-            if(jogadores.length > 0) vazia.classList.add('hidden');
+            
+            if(jogadores.length > 0) {
+                vazia.classList.add('hidden');
+                btnLimpar.classList.remove('hidden');
+            } else {
+                vazia.classList.remove('hidden');
+                btnLimpar.classList.add('hidden');
+            }
+            
             jogadores.forEach((j, i) => {
-                lista.innerHTML += '<li class="jogador-item"><span>' + (i+1) + '. ' + j.nome + '</span></li>';
+                lista.innerHTML += '<li class="jogador-item"><span>' + (i+1) + '. ' + j.nome + '</span><button class="btn-del-single" onclick="deletarJogador(' + i + ')">❌</button></li>';
             });
         }
 
@@ -109,27 +170,52 @@
             document.getElementById('tela-vencedor').classList.add('hidden');
             document.getElementById('tela-jogo').classList.remove('hidden');
             indexAtual = 0;
-            jogadores.forEach(j => j.pontos = 0);
+            
+            // Criar as cartas e disparar o tempo para espiar
+            gerarCartasEDecorar();
+        }
+
+        function gerarCartasEDecorar() {
             let duplicadas = [].concat(IMAGENS, IMAGENS);
-            cartas = duplicadas.map((img, idx) => ({ id: idx, img: img, par: false, aberta: false })).sort(() => Math.random() - 0.5);
+            // Pegar apenas as cartas que ainda NÃO foram feitas par, para manter o progresso se for re-embaralhado no meio do jogo
+            if(cartas.length === 0 || cartas.every(c => c.par)) {
+                cartas = duplicadas.map((img, idx) => ({ id: idx, img: img, par: false, aberta: false })).sort(() => Math.random() - 0.5);
+            } else {
+                // Re-embaralhar mantendo os pares que já sumiram
+                let cartasSalvas = cartas.map(c => ({ id: c.id, img: c.img, par: c.par, aberta: false }));
+                cartas = cartasSalvas.sort(() => Math.random() - 0.5);
+            }
+
+            viradas = [];
             montarTabuleiro(true);
             atualizarPlacar();
+
             let tempo = parseInt(document.getElementById('tempo-espiar').value) || 10;
             const banner = document.getElementById('banner-mensagem');
+            const btnMeio = document.getElementById('btn-embaralhar-meio');
+            
             bloqueado = true;
+            if(btnMeio) btnMeio.style.display = 'none';
             banner.innerHTML = '⏱️ Guarde na memória! Sumindo em: ' + tempo + 's';
+            
             clearInterval(tempoTimer);
             tempoTimer = setInterval(() => {
                 tempo--;
                 if(tempo <= 0) {
                     clearInterval(tempoTimer);
                     bloqueado = false;
+                    if(btnMeio) btnMeio.style.display = 'block';
                     montarTabuleiro(false);
                     banner.innerHTML = 'Vez de: ' + jogadores[indexAtual].nome;
                 } else {
                     banner.innerHTML = '⏱️ Guarde na memória! Sumindo em: ' + tempo + 's';
                 }
             }, 1000);
+        }
+
+        function embaralharNoMeioDoJogo() {
+            if(bloqueado) return;
+            gerarCartasEDecorar();
         }
 
         function montarTabuleiro(revelado) {
@@ -146,13 +232,14 @@
         }
 
         function atualizarPlacar() {
+            if(jogadores.length === 0) return;
             document.getElementById('jogador-atual').innerText = jogadores[indexAtual].nome;
             document.getElementById('proximo-jogador').innerText = jogadores[(indexAtual + 1) % jogadores.length].nome;
             const placar = document.getElementById('placar');
             placar.innerHTML = '';
             jogadores.forEach((j, i) => {
                 let estiloDestaque = (i === indexAtual) ? 'background:#dbeafe; color:#1e40af; border:1px solid #bfdbfe;' : 'background:#f3f4f6; color:#4b5563;';
-                placar.innerHTML += '<div class="placar-item" style="' + estiloDestaque + '"><span>' + j.nome + '</span><span>' + j.pontos + ' pts</span></div>';
+                placar.innerHTML += '<div class="placar-item" style="' + estiloDestaque + '"><span>' + j.nome + ' (' + j.pontos + ' pts)</span><button class="btn-del-single" style="padding:0px 4px;" onclick="deletarJogadorNoMeio(' + i + ')">❌</button></div>';
             });
         }
 
@@ -197,16 +284,28 @@
         }
 
         function finalizarJogo() {
+            clearInterval(tempoTimer);
             document.getElementById('tela-jogo').classList.add('hidden');
             document.getElementById('tela-vencedor').classList.remove('hidden');
             let ordenado = [].concat(jogadores).sort((a,b) => b.pontos - a.pontos);
             document.getElementById('texto-vencedor').innerHTML = '<span style="color:#9333ea;">' + ordenado[0].nome + '</span> ganhou com <span style="color:#16a34a;">' + ordenado[0].pontos + ' pontos</span>!';
         }
 
-        function reiniciarTudo() {
+        function jogarNovamenteMesmosJogadores() {
             document.getElementById('tela-vencedor').classList.add('hidden');
+            document.getElementById('tela-jogo').classList.remove('hidden');
+            indexAtual = 0;
+            jogadores.forEach(j => j.pontos = 0);
+            cartas = [];
+            gerarCartasEDecorar();
+        }
+
+        function reiniciarTudo() {
+            clearInterval(tempoTimer);
+            document.getElementById('tela-vencedor').classList.add('hidden');
+            document.getElementById('tela-jogo').classList.add('hidden');
             document.getElementById('tela-inicial').classList.remove('hidden');
-            jogadores = [];
+            cartas = [];
             atualizarListaEspera();
         }
     </script>
