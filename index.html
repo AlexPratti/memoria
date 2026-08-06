@@ -35,7 +35,7 @@
         /* ANIMAÇÃO DE PULO BOUNCE QUANDO O PAR É ENCONTRADO */
         @keyframes puloAcerto {
             0% { transform: scale(1) rotateY(180deg); }
-            40% { transform: scale(1.3) translateY(-20px) rotateY(180deg); }
+            40% { transform: scale(1.3) translateY(-25px) rotateY(180deg); }
             70% { transform: scale(0.9) translateY(0) rotateY(180deg); }
             100% { transform: scale(0) rotateY(180deg); opacity: 0; }
         }
@@ -60,6 +60,7 @@
 </head>
 <body>
     <button id="btn-som" onclick="alternarSom()" class="btn-mutar">🔊</button>
+    <div class="titulo">🧠 Jogo da Memória Super Kids</div>
     <!-- TELA INICIAL -->
     <div id="tela-inicial" class="container">
         <div class="subtitulo" style="margin-top:0;">1. Quem vai jogar?</div>
@@ -155,23 +156,16 @@
         let turnoTimer;
 
         function obterStatusJogador(pts) {
-            if (pts >= 300) {
-                return { nv: 4, tit: "Cérebro de Gênio 🧠" };
-            }
-            if (pts >= 200) {
-                return { nv: 3, tit: "Mestre dos Pares 🧙‍♂️" };
-            }
-            if (pts >= 100) {
-                return { nv: 2, tit: "Explorador da Memória 🧭" };
-            }
+            if (pts >= 300) return { nv: 4, tit: "Cérebro de Gênio 🧠" };
+            if (pts >= 200) return { nv: 3, tit: "Mestre dos Pares 🧙‍♂️" };
+            if (pts >= 100) return { nv: 2, tit: "Explorador da Memória 🧭" };
             return { nv: 1, tit: "Detetive de Emojis 🕵️‍♂️" };
         }
 
         function tocarSom(tipo) {
             if (!somAtivo) return;
             try {
-                const ctx = new (window.AudioContext || 
-                    window.webkitAudioContext)();
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination);
@@ -201,20 +195,16 @@
 
         function alternarSom() {
             somAtivo = !somAtivo;
-            document.getElementById('btn-som').innerText = 
-                somAtivo ? '🔊' : '🔇';
+            document.getElementById('btn-som').innerText = somAtivo ? '🔊' : '🔇';
         }
 
         function mudarTema(novoTema) {
             temaAtual = novoTema;
-            document.querySelectorAll('.btn-tema')
-                .forEach(btn => btn.classList.remove('ativo'));
-            document.getElementById('tema-' + novoTema)
-                .classList.add('ativo');
+            document.querySelectorAll('.btn-tema').forEach(btn => btn.classList.remove('ativo'));
+            document.getElementById('tema-' + novoTema).classList.add('ativo');
         }
         function adicionarJogador(onde) {
-            const idInput = onde === 'inicial' ? 
-                'input-nome' : 'input-nome-meio';
+            const idInput = onde === 'inicial' ? 'input-nome' : 'input-nome-meio';
             const input = document.getElementById(idInput);
             const nome = input.value.trim();
             if(!nome) return;
@@ -234,9 +224,7 @@
         }
 
         function deletarJogadorNoMeio(index) {
-            if(jogadores.length <= 1) {
-                return alert("Não jogue sozinho!");
-            }
+            if(jogadores.length <= 1) return alert("Não jogue sozinho!");
             jogadores.splice(index, 1);
             if (indexAtual >= jogadores.length) indexAtual = 0;
             atualizarPlacar();
@@ -248,17 +236,12 @@
             const btnLimpar = document.getElementById('btn-limpar-todos');
             lista.innerHTML = '';
             if(jogadores.length > 0) {
-                vazia.classList.add('hidden'); 
-                btnLimpar.classList.remove('hidden');
+                vazia.classList.add('hidden'); btnLimpar.classList.remove('hidden');
             } else {
-                vazia.classList.remove('hidden'); 
-                btnLimpar.classList.add('hidden');
+                vazia.classList.remove('hidden'); btnLimpar.classList.add('hidden');
             }
             jogadores.forEach((j, i) => {
-                lista.innerHTML += '<li class="jogador-item"><span>' + 
-                    (i+1) + '. ' + j.nome + 
-                    '</span><button class="btn-del-single" ' +
-                    'onclick="deletarJogador(' + i + ')">❌</button></li>';
+                lista.innerHTML += '<li class="jogador-item"><span>' + (i+1) + '. ' + j.nome + '</span><button class="btn-del-single" onclick="deletarJogador(' + i + ')">❌</button></li>';
             });
         }
 
@@ -271,6 +254,116 @@
             cartas = [];
             gerarCartasEDecorar();
         }
+        function gerarCartasEDecorar() {
+            clearInterval(turnoTimer);
+            document.getElementById('cronometro-container').classList.add('hidden');
+            let imgsTema = TEMAS[temaAtual];
+            let duplicadas = [].concat(imgsTema, imgsTema);
+            
+            if(cartas.length === 0 || cartas.every(c => c.par)) {
+                cartas = duplicadas.map((img, idx) => ({ id: idx, img: img, par: false, aberta: false })).sort(() => Math.random() - 0.5);
+            } else {
+                let cartasSalvas = cartas.map(c => ({ id: c.id, img: c.img, par: c.par, aberta: false }));
+                cartas = cartasSalvas.sort(() => Math.random() - 0.5);
+            }
+
+            viradas = [];
+            montarTabuleiro(true);
+            atualizarPlacar();
+
+            let tempo = parseInt(document.getElementById('tempo-espiar').value) || 10;
+            const banner = document.getElementById('banner-mensagem');
+            const btnMeio = document.getElementById('btn-embaralhar-meio');
+            
+            bloqueado = true;
+            if(btnMeio) btnMeio.style.display = 'none';
+            banner.innerHTML = '⏱️ Memorize! Sumindo em: ' + tempo + 's';
+            
+            clearInterval(tempoTimer);
+            tempoTimer = setInterval(() => {
+                tempo--;
+                if(tempo <= 0) {
+                    clearInterval(tempoTimer);
+                    bloqueado = false;
+                    if(btnMeio) btnMeio.style.display = 'block';
+                    montarTabuleiro(false);
+                    banner.innerHTML = 'Vez de: ' + jogadores[indexAtual].nome;
+                    iniciarContagemTurnoJogador();
+                } else {
+                    banner.innerHTML = '⏱️ Memorize! Sumindo em: ' + tempo + 's';
+                }
+            }, 1000);
+        }
+
+        function iniciarContagemTurnoJogador() {
+            clearInterval(turnoTimer);
+            if(bloqueado) return;
+            tempoDoTurnoRestante = 10;
+            document.getElementById('cronometro-container').classList.remove('hidden');
+            document.getElementById('tempo-turno-texto').innerText = 'Tempo: 10s';
+            document.getElementById('barra-tempo').style.width = '100%';
+
+            turnoTimer = setInterval(() => {
+                tempoDoTurnoRestante -= 0.1;
+                let pct = (tempoDoTurnoRestante / 10) * 100;
+                document.getElementById('barra-tempo').style.width = pct + '%';
+                document.getElementById('tempo-turno-texto').innerText = 'Tempo: ' + Math.ceil(tempoDoTurnoRestante) + 's';
+
+                if(tempoDoTurnoRestante <= 0) {
+                    clearInterval(turnoTimer);
+                    passarAVezPorTempo();
+                }
+            }, 100);
+        }
+
+        function passarAVezPorTempo() {
+            cartas.forEach(c => { if(!c.par) c.aberta = false; });
+            viradas = [];
+            indexAtual = (indexAtual + 1) % jogadores.length;
+            document.getElementById('banner-mensagem').innerHTML = '⏰ Tempo esgotado! Vez de: ' + jogadores[indexAtual].nome;
+            tocarSom('erro');
+            montarTabuleiro(false);
+            atualizarPlacar();
+            iniciarContagemTurnoJogador();
+        }
+
+        function embaralharNoMeioDoJogo() {
+            if(bloqueado) return;
+            gerarCartasEDecorar();
+        }
+
+        function montarTabuleiro(revelado) {
+            const tab = document.getElementById('tabuleiro');
+            tab.innerHTML = '';
+            cartas.forEach(c => {
+                let divClasse = 'bloco-carta';
+                if(c.par) divClasse += ' carta-par';
+                if(revelado || c.aberta || c.par) divClasse += ' virada';
+
+                tab.innerHTML += '<button onclick="clicarCarta(' + c.id + ')" class="' + divClasse + '">' +
+                    '<div class="carta-face carta-frente">❓</div>' +
+                    '<div class="carta-face carta-verso">' + c.img + '</div>' +
+                    '</button>';
+            });
+        }
+        function atualizarPlacar() {
+            if(jogadores.length === 0) return;
+            let jA = jogadores[indexAtual];
+            let status = obterStatusJogador(jA.pontos);
+            document.getElementById('jogador-atual').innerText = jA.nome;
+            document.getElementById('jogador-nivel').innerText = 'Nv ' + status.nv + ' • ' + status.tit;
+            document.getElementById('proximo-jogador').innerText = jogadores[(indexAtual + 1) % jogadores.length].nome;
+            
+            const placar = document.getElementById('placar');
+            placar.innerHTML = '';
+            jogadores.forEach((j, i) => {
+                let st = obterStatusJogador(j.pontos);
+                let des = (i === indexAtual) ? 'background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;' : 'background:#f3f4f6;color:#4b5563;';
+                let textoItem = '<div class="placar-item" style="' + des + '"><div><span>' + j.nome + ' (' + j.pontos + ' pts)</span><br><small style="color:#a855f7;">' + st.tit + '</small></div><button class="btn-del-single" style="padding:0px 4px;" onclick="deletarJogadorNoMeio(' + i + ')">❌</button></div>';
+                placar.innerHTML += textoItem;
+            });
+        }
+
         function clicarCarta(id) {
             if(bloqueado) return;
             let carta = cartas.find(c => c.id === id);
@@ -285,21 +378,15 @@
                 clearInterval(turnoTimer);
                 const banner = document.getElementById('banner-mensagem');
                 
-                // CHECAGEM CORRETA DAS DUAS CARTAS
                 if(viradas[0].img === viradas[1].img) {
                     setTimeout(() => {
                         viradas[0].par = true;
                         viradas[1].par = true;
-                        
                         jogadores[indexAtual].pontos += 5;
-                        
-                        banner.innerHTML = '✅ Acertou! ' + 
-                            jogadores[indexAtual].nome + ' acumulou ' + 
-                            jogadores[indexAtual].pontos + ' pts!';
+                        banner.innerHTML = '✅ Acertou! ' + jogadores[indexAtual].nome + ' acumulou ' + jogadores[indexAtual].pontos + ' pts!';
                         tocarSom('acerto');
                         viradas = [];
                         bloqueado = false;
-                        
                         if(cartas.every(c => c.par)) {
                             finalizarJogo();
                         } else {
@@ -315,8 +402,7 @@
                         viradas = [];
                         indexAtual = (indexAtual + 1) % jogadores.length;
                         bloqueado = false;
-                        banner.innerHTML = '❌ Errou! Vez de: ' + 
-                            jogadores[indexAtual].nome;
+                        banner.innerHTML = '❌ Errou! Vez de: ' + jogadores[indexAtual].nome;
                         tocarSom('erro');
                         montarTabuleiro(false);
                         atualizarPlacar();
@@ -325,38 +411,25 @@
                 }
             }
         }
+
         function finalizarJogo() {
             clearInterval(tempoTimer); clearInterval(turnoTimer);
-            document.getElementById('cronometro-container')
-                .classList.add('hidden');
+            document.getElementById('cronometro-container').classList.add('hidden');
             document.getElementById('tela-jogo').classList.add('hidden');
-            document.getElementById('tela-vencedor')
-                .classList.remove('hidden');
+            document.getElementById('tela-vencedor').classList.remove('hidden');
             tocarSom('vitoria');
-            
-            let ordenado = [].concat(jogadores)
-                .sort((a,b) => b.pontos - a.pontos);
+            let ordenado = [].concat(jogadores).sort((a,b) => b.pontos - a.pontos);
             let campeao = ordenado[0];
-            
             if (campeao.pontos >= 300) {
                 document.getElementById('emoji-fim').innerText = '🧠🏆';
-                document.getElementById('titulo-fim').innerText = 
-                    'ZERAÇÃO DO JOGO!';
-                document.getElementById('texto-vencedor').innerHTML = 
-                    '🏆 INCRÍVEL! ' + campeao.nome + 
-                    ' atingiu a pontuação máxima de ' + campeao.pontos + 
-                    ' pontos e virou um CÉREBRO DE GÊNIO! O campeonato acabou!';
+                document.getElementById('titulo-fim').innerText = 'ZERAÇÃO DO JOGO!';
+                document.getElementById('texto-vencedor').innerHTML = '🏆 INCRÍVEL! ' + campeao.nome + ' atingiu a pontuação máxima de ' + campeao.pontos + ' pontos e virou um CÉREBRO DE GÊNIO! O campeonato acabou!';
                 document.getElementById('btn-mais-uma').classList.add('hidden');
             } else {
                 document.getElementById('emoji-fim').innerText = '👑';
-                document.getElementById('titulo-fim').innerText = 
-                    'Fim da Rodada!';
-                document.getElementById('texto-vencedor').innerHTML = 
-                    'O jogador <span style="color:#9333ea;">' + campeao.nome + 
-                    '</span> lidera o ranking com <span style="color:#16a34a;">' + 
-                    campeao.pontos + ' pontos acumulados</span>!';
-                document.getElementById('btn-mais-uma')
-                    .classList.remove('hidden');
+                document.getElementById('titulo-fim').innerText = 'Fim da Rodada!';
+                document.getElementById('texto-vencedor').innerHTML = 'O jogador <span style="color:#9333ea;">' + campeao.nome + '</span> lidera o ranking com <span style="color:#16a34a;">' + campeao.pontos + ' pontos acumulados</span>!';
+                document.getElementById('btn-mais-uma').classList.remove('hidden');
             }
         }
 
